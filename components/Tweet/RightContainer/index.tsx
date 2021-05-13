@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import { TweetType } from '../../../types'
 import { Ionicons } from "@expo/vector-icons"
 import Footer from '../../Footer'
+import moment from 'moment'
 
 interface RightContainerProps {
     tweet: TweetType
@@ -15,7 +16,7 @@ const RightContainer = ({ tweet }: RightContainerProps) => {
                 <View style={styles.tweetHeaderNames}>
                     <Text style={styles.name}>{tweet.user.name}</Text>
                     <Text style={styles.username}>@{tweet.user.username}</Text>
-                    <Text style={styles.createdAt}>15s</Text>
+                    <Text style={styles.createdAt}>{moment(tweet.createdAt).fromNow()}</Text>
                 </View>
                 <View>
                     <Ionicons name="chevron-down" size={15} color="grey" style={styles.moreIcon} />
@@ -64,7 +65,8 @@ const styles = StyleSheet.create({
         color: "grey"
     },
     createdAt: {
-        marginHorizontal: 5
+        marginHorizontal: 5,
+        color: "grey"
     },
     moreIcon: {
 

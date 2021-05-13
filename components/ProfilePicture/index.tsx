@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, Image } from 'react-native'
 
 interface ProfilePictureProps {
-    image: string,
+    image?: string,
     size?: number,
 }
 

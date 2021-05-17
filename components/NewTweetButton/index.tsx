@@ -2,10 +2,12 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
+import { useNavigation } from '@react-navigation/native';
 
 const NewTweetButton = () => {
+    const navigation = useNavigation();
     const onPress = () => {
-        console.warn("tweet created")
+        navigation.navigate("NewTweet")
     }
     return (
         <TouchableOpacity style={styles.button} onPress={onPress} activeOpacity={.8}>

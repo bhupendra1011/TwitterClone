@@ -8,7 +8,7 @@ interface ProfilePictureProps {
 
 const ProfilePicture = ({ image, size = 20 }: ProfilePictureProps) => {
     return (
-        <Image source={{ uri: image }} style={{ width: size, height: size, borderRadius: size }} />
+        <Image source={{ uri: image || '' }} style={{ width: size, height: size, borderRadius: size }} />
     )
 }
 

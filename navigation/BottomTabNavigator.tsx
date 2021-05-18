@@ -8,12 +8,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import ProfilePicture from '../components/ProfilePicture';
+import Amplify, { Auth, API, graphqlOperation } from 'aws-amplify';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import HomeScreen from '../screens/HomeScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, HomeNavigatorParamList, TabTwoParamList } from '../types';
+import { getUser } from '../graphql/queries';
+
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -68,6 +71,30 @@ const TabOneStack = createStackNavigator<HomeNavigatorParamList>();
 
 function HomeNavigator() {
 
+  const [user, setUser] = React.useState(null);
+
+
+  React.useEffect(() => {
+    // get current user
+    const fetchUser = async () => {
+      try {
+        const userInfo = await Auth.currentAuthenticatedUser({ bypassCache: true })
+        if (!userInfo) return;
+        const userData = await API.graphql(graphqlOperation(getUser, { id: userInfo.attributes.sub }));
+        if (userData) {
+          setUser(userData.data.getUser);
+
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+    }
+    fetchUser();
+
+  },
+    [])
+
   return (
     <TabOneStack.Navigator>
       <TabOneStack.Screen
@@ -77,7 +104,7 @@ function HomeNavigator() {
           headerLeftContainerStyle: { marginLeft: 15 },
           headerRightContainerStyle: { marginRight: 15 },
           headerTitleContainerStyle: { alignItems: "center" },
-          headerLeft: () => <ProfilePicture image="https://pbs.twimg.com/profile_images/1383042648550739968/fS6W0TvY_200x200.jpg" size={40} />,
+          headerLeft: () => <ProfilePicture image={user?.image} size={40} />,
           headerTitle: () => (<Ionicons name="logo-twitter" size={35} color={Colors.light.tint} />),
           headerRight: () => (<MaterialCommunityIcons name="star-four-points-outline" size={30} color={Colors.light.tint} />)
         }}

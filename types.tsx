@@ -28,7 +28,7 @@ export type TweetType = {
   id: string;
   user: UserType;
   createdAt: string;
-  content: string;
+  title: string;
   image?: string;
   numberOfComments?: number;
   numberOfRetweets?: number;

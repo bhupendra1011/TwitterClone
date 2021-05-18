@@ -10,6 +10,7 @@ interface TweetProps {
 }
 
 const Tweet = ({ tweet }: TweetProps) => {
+
     return (
         <View style={styles.root}>
             <LeftContainer user={tweet.user} style={styles.left} />

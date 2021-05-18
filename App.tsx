@@ -34,11 +34,11 @@ function App() {
     const updateUser = async () => {
       // get authenicated user
       const userInfo = await Auth.currentAuthenticatedUser({ bypassCache: true })
-      console.log(userInfo);
+
       if (userInfo) {
         // check if user exists in db
         const userData = await API.graphql(graphqlOperation(getUser, { id: userInfo.attributes.sub }));
-        console.log(userData)
+        // console.log(userData)
         if (!userData.data.getUser) {
           // if not create user in db for user present in cognito aws
           const user = {

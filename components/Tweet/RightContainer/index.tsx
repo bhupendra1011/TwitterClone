@@ -23,8 +23,8 @@ const RightContainer = ({ tweet }: RightContainerProps) => {
                 </View>
             </View>
             <View>
-                <Text style={styles.content}>{tweet.content}</Text>
-                {tweet.image && <Image source={{ uri: tweet.image }} style={styles.image} />}
+                <Text style={styles.content}>{tweet.title}</Text>
+                {!!tweet.image && <Image source={{ uri: tweet.image }} style={styles.image} />}
             </View>
             <Footer tweet={tweet} />
         </View>

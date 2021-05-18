@@ -5,17 +5,31 @@ import { useNavigation } from '@react-navigation/core';
 import Colors from '../constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProfilePicture from '../components/ProfilePicture';
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { createTweet } from '../graphql/mutations';
 
 const NewTweetScreen = () => {
     const navigation = useNavigation();
 
-
     const [tweet, setTweet] = React.useState("");
     const [imageUrl, setImageUrl] = React.useState("");
 
-    const onPostTweet = () => {
-        console.warn("on post tweet");
-        console.log(imageUrl)
+    const onPostTweet = async () => {
+        try {
+            const currentUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
+            const newTweet = {
+                title: tweet,
+                image: imageUrl,
+                userID: currentUser.attributes.sub
+            }
+            await API.graphql(graphqlOperation(createTweet, { input: newTweet }))
+
+        } catch (error) {
+            console.log(error);
+
+        } finally {
+            navigation.goBack();
+        }
     }
 
 

@@ -6,7 +6,7 @@ import { Auth, API, graphqlOperation } from "aws-amplify"
 
 import { TweetType } from "../../types"
 import tweets from '../../data/tweets'
-import { createLike } from '../../graphql/mutations'
+import { createLike, deleteLike } from '../../graphql/mutations'
 
 interface FooterContainerProps {
     tweet: TweetType
@@ -27,8 +27,7 @@ const Footer = ({ tweet }: FooterContainerProps) => {
         fetchUser();
     }, [])
 
-    const onLike = async () => {
-        if (!user) return;
+    const handleLike = async () => {
         try {
             const like = {
                 userID: user.attributes.sub,
@@ -40,6 +39,28 @@ const Footer = ({ tweet }: FooterContainerProps) => {
 
         } catch (error) {
             console.log(error);
+
+        }
+    }
+
+    const handleNotLike = async () => {
+        try {
+            await API.graphql(graphqlOperation(deleteLike, { input: { id: myLike.id } }));
+            setMyLike(null);
+            setLikesCount(prev => prev - 1)
+
+        } catch (error) {
+            console.log(error);
+
+
+        }
+    }
+
+    const onLike = async () => {
+        if (!user) return;
+        if (!myLike) { await handleLike(); }
+        else {
+            await handleNotLike();
 
         }
     }

@@ -1,36 +1,93 @@
 import React from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Platform, Image, Button } from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/core';
+import * as ImagePicker from 'expo-image-picker';
 import Colors from '../constants/Colors';
+import { v4 as uuidv4 } from 'uuid';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProfilePicture from '../components/ProfilePicture';
-import { API, graphqlOperation, Auth } from "aws-amplify";
+import { API, graphqlOperation, Auth, Storage } from "aws-amplify";
 import { createTweet } from '../graphql/mutations';
+
 
 const NewTweetScreen = () => {
     const navigation = useNavigation();
 
     const [tweet, setTweet] = React.useState("");
-    const [imageUrl, setImageUrl] = React.useState("");
+    const [imageUrl, setImageUrl] = React.useState('');
 
-    const onPostTweet = async () => {
-        try {
-            const currentUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
-            const newTweet = {
-                title: tweet,
-                image: imageUrl,
-                userID: currentUser.attributes.sub
+
+    const getPermissionAsync = async () => {
+        if (Platform.OS !== 'web') {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
             }
-            await API.graphql(graphqlOperation(createTweet, { input: newTweet }))
+        }
+    }
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (!result.cancelled) {
+            setImageUrl(result.uri);
+        }
+    }
+
+    const uploadImage = async () => {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const urlParts = imageUrl.split('.');
+            const extension = urlParts[urlParts.length - 1]
+            const key = `${uuidv4()}.${extension}`
+            debugger;
+            console.log(key);
+            await Storage.put(key, blob);
+            return key
 
         } catch (error) {
             console.log(error);
 
-        } finally {
+        }
+        return '';
+    }
+
+
+
+    const onPostTweet = async () => {
+        let image;
+        if (!!imageUrl) {
+            image = await uploadImage();
+        }
+
+        try {
+            const currentUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
+            const newTweet = {
+                title: tweet,
+                image: image,
+                userID: currentUser.attributes.sub
+            }
+            await API.graphql(graphqlOperation(createTweet, { input: newTweet }))
             navigation.goBack();
+
+        } catch (error) {
+            console.log(error);
+
         }
     }
+
+    React.useEffect(() => {
+        getPermissionAsync();
+    }, [])
 
 
     return (
@@ -48,7 +105,8 @@ const NewTweetScreen = () => {
                 <ProfilePicture image={"https://pbs.twimg.com/profile_images/1383042648550739968/fS6W0TvY_200x200.jpg"} size={30} />
                 <View style={styles.inputsContainer}>
                     <TextInput numberOfLines={3} multiline={true} style={styles.tweetInput} placeholder={"What's happening"} onChangeText={(val) => setTweet(val)} value={tweet} />
-                    <TextInput style={styles.imageInput} placeholder={"Image Url(optional)d"} value={imageUrl} onChangeText={(val) => setImageUrl(val)} />
+                    <Button title="Upload Photo " onPress={pickImage} />
+                    {!!imageUrl && <Image source={{ uri: imageUrl }} style={{ width: 200, height: 200 }} />}
                 </View>
             </View>
         </SafeAreaView>

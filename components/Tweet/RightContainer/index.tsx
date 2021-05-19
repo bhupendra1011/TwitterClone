@@ -4,6 +4,7 @@ import { TweetType } from '../../../types'
 import { Ionicons } from "@expo/vector-icons"
 import Footer from '../../Footer'
 import moment from 'moment'
+import { S3Image } from "aws-amplify-react-native"
 
 interface RightContainerProps {
     tweet: TweetType
@@ -24,7 +25,7 @@ const RightContainer = ({ tweet }: RightContainerProps) => {
             </View>
             <View>
                 <Text style={styles.content}>{tweet.title}</Text>
-                {!!tweet.image && <Image source={{ uri: tweet.image }} style={styles.image} />}
+                {!!tweet.image && <S3Image imgKey={tweet.image} style={styles.image} />}
             </View>
             <Footer tweet={tweet} />
         </View>

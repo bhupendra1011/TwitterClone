@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { AntDesign, Entypo, EvilIcons, Feather } from "@expo/vector-icons"
 
+
 import { Auth, API, graphqlOperation } from "aws-amplify"
 
 import { TweetType } from "../../types"
